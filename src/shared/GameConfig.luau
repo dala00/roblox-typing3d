@@ -14,7 +14,7 @@ local GameConfig = {
 	DeskY = 0.0, -- キーが乗る基準面y(ノートPCデッキの天面)
 
 	-- アバターの移動速度(既定16では巨大キーボード上で遅すぎる)
-	WalkSpeed = 30,
+	WalkSpeed = 26,
 
 	-- 3行のキー配列と横ずらし(キー数ぶん)。QWERTY=奥、ZXC=手前。
 	Rows = { "QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM" },

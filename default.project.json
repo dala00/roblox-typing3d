@@ -50,7 +50,7 @@
         "Brightness": 2,
         "GlobalShadows": true,
         "Outlines": false,
-        "Technology": "ShadowMap"
+        "Technology": "Future"
       }
     },
     "SoundService": {

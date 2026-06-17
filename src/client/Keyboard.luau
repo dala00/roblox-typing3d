@@ -25,9 +25,11 @@ export type KeyInfo = {
 
 -- 暗い部屋の雰囲気。ディスプレイ素材は無いので、ライティングだけで寄せる。
 local function setupAtmosphere()
-	Lighting.Ambient = Color3.fromRGB(12, 14, 22)
-	Lighting.OutdoorAmbient = Color3.fromRGB(10, 12, 20)
-	Lighting.Brightness = 0.6
+	-- 起動直後の暗さ(ライト計算の立ち上がり)の落差を抑えるため、基礎の明るさを
+	-- 少しだけ底上げしておく(暗い部屋の雰囲気は維持)。
+	Lighting.Ambient = Color3.fromRGB(20, 22, 32)
+	Lighting.OutdoorAmbient = Color3.fromRGB(16, 18, 28)
+	Lighting.Brightness = 1.0
 	Lighting.ClockTime = 0 -- 夜
 	Lighting.GlobalShadows = true
 	Lighting.FogColor = Color3.fromRGB(4, 6, 12)
