@@ -320,12 +320,16 @@ local function buildRoom(folder: Folder)
 		return
 	end
 	local segments = 50 -- 円の分割数(多いほど滑らか)
-	local radius = 160
-	-- 全体的に下げて埋める＋縦を伸ばして潰れを緩和(下へ深く)
-	local yFloor, yCeil = -120, 25
-	local height = yCeil - yFloor
-	local centerY = (yFloor + yCeil) / 2
-	local dim = Color3.fromRGB(95, 95, 110) -- 減光(暗い部屋になじませる)
+	-- 半径を小さくすると円周が短くなり、歪み無しの高さも低くできる(壁も近くなる)。
+	local radius = 100
+	-- 元画像(1344x768)を1周巻いて歪まない高さ = 円周 × (高さ/幅)
+	local imgAspect = 768 / 1344
+	local height = 2 * math.pi * radius * imgAspect
+	-- 画像の中央(部屋の水平線)が目線あたりに来るよう上下に配置
+	local eyeY = 5
+	local yFloor = eyeY - height / 2
+	local centerY = eyeY
+	local dim = Color3.fromRGB(62, 62, 74) -- 減光(暗い部屋になじませる)
 	local chord = 2 * radius * math.sin(math.pi / segments)
 	local segW = chord * 1.05 -- 少し広げて継ぎ目を消す
 	-- 継ぎ目(画像の端と端が出会う所)をディスプレイの裏(-Z)に持っていく

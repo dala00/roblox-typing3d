@@ -47,8 +47,8 @@ local GameConfig = {
 	-- PerCharはレベルで微減(下限あり)。
 	TimeBase = 2.5,
 	PerCharMax = 2.8,
-	PerCharMin = 1.8,
-	PerCharDecay = 0.08, -- レベルごとの減衰
+	PerCharMin = 1.1,
+	PerCharDecay = 0.13, -- レベルごとの減衰(大きいほど早くタイトに)
 	RetryDelay = 0.7, -- ゲームオーバー後リトライ受付までの猶予
 
 	-- ===== 色 =====
