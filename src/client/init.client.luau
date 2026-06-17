@@ -59,8 +59,8 @@ local function setLabelColor(ch: string, color: Color3)
 	end
 end
 
-local function setHighlight()
-	-- 直前のハイライトを戻す
+-- 現在のハイライトを完全に解除(ラベル色＋キーのNeon/色を通常へ戻す)
+local function clearHighlight()
 	if highlightChar ~= "" then
 		setLabelColor(highlightChar, GameConfig.LabelBase)
 		local prev = keys.part[highlightChar]
@@ -70,6 +70,10 @@ local function setHighlight()
 		end
 	end
 	highlightChar = ""
+end
+
+local function setHighlight()
+	clearHighlight()
 	if charIdx < #target then
 		local ch = string.sub(target, charIdx + 1, charIdx + 1)
 		if keys.label[ch] then
@@ -280,10 +284,7 @@ local function restart()
 	gameOver = false
 	goReady = false
 	hud:clearPop()
-	if highlightChar ~= "" then
-		setLabelColor(highlightChar, GameConfig.LabelBase)
-	end
-	highlightChar = ""
+	clearHighlight()
 	if player.Character then
 		placeOnHome(player.Character)
 	end
