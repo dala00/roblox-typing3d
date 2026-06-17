@@ -14,6 +14,7 @@ export type Hud = typeof(setmetatable({} :: {
 	word: TextLabel,
 	score: TextLabel,
 	time: TextLabel,
+	plus: TextLabel,
 	pop: TextLabel,
 }, Hud))
 
@@ -81,6 +82,21 @@ function Hud.new(parent: Instance): Hud
 	time.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
 	time.Parent = gui
 
+	-- 時間プラスの浮き出し表示(TIMEの下に "+X.X" が出てフェード)
+	local plus = Instance.new("TextLabel")
+	plus.Size = UDim2.fromOffset(300, 40)
+	plus.Position = UDim2.new(1, -322, 0, 78)
+	plus.BackgroundTransparency = 1
+	plus.TextXAlignment = Enum.TextXAlignment.Right
+	plus.Text = ""
+	plus.TextSize = 28
+	plus.Font = Enum.Font.FredokaOne
+	plus.TextColor3 = Color3.fromRGB(120, 255, 150)
+	plus.TextStrokeTransparency = 0.4
+	plus.TextStrokeColor3 = Color3.fromRGB(10, 40, 20)
+	plus.TextTransparency = 1
+	plus.Parent = gui
+
 	-- 中央ポップ(CLEAR/GAME OVER)
 	local pop = Instance.new("TextLabel")
 	pop.Size = UDim2.fromScale(1, 1)
@@ -111,8 +127,21 @@ function Hud.new(parent: Instance): Hud
 		word = word,
 		score = score,
 		time = time,
+		plus = plus,
 		pop = pop,
 	}, Hud)
+end
+
+-- 正解時の「+X.X秒」をTIMEの下にポンと出してフェードさせる
+function Hud.timePlus(self: Hud, amount: number)
+	local p = self.plus
+	p.Text = string.format("+%.1f", amount)
+	p.TextTransparency = 0
+	p.Position = UDim2.new(1, -322, 0, 78)
+	TweenService:Create(p, TweenInfo.new(0.5, Enum.EasingStyle.Quad), {
+		TextTransparency = 1,
+		Position = UDim2.new(1, -322, 0, 62),
+	}):Play()
 end
 
 -- お題: 済(緑)/次(橙太字)/未入力(灰) の色分け。RichTextで組む。

@@ -67,6 +67,7 @@ Godot 版 3D タイピング（`godot/typing-3d`）からの移植 MVP を実装
   - `src/client/Sounds.luau` 効果音。**Roblox は実行時 PCM 合成不可**なので Sound アセット方式。ID 未設定でも無音で安全に動く（後で `rbxassetid` を入れる）。
   - `src/client/init.client.luau` アバター配置・ゲームループ・着地打鍵判定・スコア・ゲームオーバー/リトライ。
 - 着地判定は `Humanoid.StateChanged` の `Landed` を拾い、`HumanoidRootPart` の XZ から `StompRadius` 内の最寄りキーを「踏んだ」とする。
+- 制限時間は**プラス制（1本の連続タイマー）**。開始時 `StartTime`、正解キーごとに `KeyTime*`（レベルで減衰：序盤大・終盤小）を加算、お手つきで減算、0 でゲームオーバー。序盤に速く打つほど時間を貯金でき、終盤は貯金を取り崩して粘る。上限 `TimeCap`。単語クリアはスコア `WordBonus`＋時間 `WordTimeBonus`。
 
 ### 未対応（素材待ち。Godot 版にあるが Roblox では後回し）
 

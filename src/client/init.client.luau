@@ -48,7 +48,6 @@ local score = 0
 local combo = 0
 local level = 1
 local timeLeft = 0.0
-local timeLimit = 1.0
 local playing = false
 local gameOver = false
 local goReady = false -- ゲームオーバー後リトライ受付可
@@ -125,8 +124,22 @@ end
 -- ===== HUD反映 =====
 local function updateHud()
 	hud:setScore(score, combo)
-	local ratio = if timeLimit > 0.01 then math.clamp(timeLeft / timeLimit, 0, 1) else 0
+	-- 残り少なくなったら赤(4秒以下で赤くなる)
+	local ratio = math.clamp(timeLeft / 10, 0, 1)
 	hud:setTime(level, timeLeft, ratio)
+end
+
+-- 正解1キーの時間加算(レベルで減衰: 序盤大・終盤小)
+local function keyTimeBonus(): number
+	return math.clamp(
+		GameConfig.KeyTimeMax - level * GameConfig.KeyTimeDecay,
+		GameConfig.KeyTimeMin,
+		GameConfig.KeyTimeMax
+	)
+end
+
+local function addTime(amount: number)
+	timeLeft = math.min(GameConfig.TimeCap, timeLeft + amount)
 end
 
 -- ===== お題選択 =====
@@ -150,12 +163,10 @@ local function pickWord(): string
 	return w
 end
 
+-- 次のお題へ。タイマーは連続なのでリセットしない。
 local function nextWord()
 	target = pickWord()
 	charIdx = 0
-	local perChar = math.clamp(GameConfig.PerCharMax - level * GameConfig.PerCharDecay, GameConfig.PerCharMin, GameConfig.PerCharMax)
-	timeLimit = GameConfig.TimeBase + #target * perChar
-	timeLeft = timeLimit
 	playing = true
 	hud:setWord(target, charIdx)
 	updateHud()
@@ -166,6 +177,7 @@ local function startGame()
 	score = 0
 	combo = 0
 	level = 1
+	timeLeft = GameConfig.StartTime
 	nextWord()
 end
 
@@ -183,20 +195,17 @@ local function nearestKey(pos: Vector3): string
 	return best_ch
 end
 
+-- 単語クリア。タイマーは止めず、スコア＋時間ボーナスを足して即次の単語へ。
 local function onWordClear()
-	playing = false
-	local timeBonus = math.floor(timeLeft * GameConfig.TimeBonusPer)
-	local gained = GameConfig.WordBonus + timeBonus
-	score += gained
+	score += GameConfig.WordBonus
 	level += 1
+	addTime(GameConfig.WordTimeBonus)
 	Sounds.play("clear")
-	hud:popup("CLEAR!  +" .. gained, Color3.fromRGB(150, 255, 180), 64)
+	hud:popup("CLEAR!  +" .. GameConfig.WordBonus, Color3.fromRGB(150, 255, 180), 56)
 	updateHud()
-	task.delay(0.95, function()
-		if not gameOver then
-			nextWord()
-		end
-	end)
+	if not gameOver then
+		nextWord()
+	end
 end
 
 local function advance()
@@ -223,6 +232,10 @@ local function onLand(rootPos: Vector3)
 	if ch == highlightChar then
 		combo += 1
 		score += GameConfig.ScorePer * combo
+		-- 正解で時間プラス(レベルで減衰)
+		local bonus = keyTimeBonus()
+		addTime(bonus)
+		hud:timePlus(bonus)
 		flashLabel(ch, GameConfig.LabelOk)
 		Sounds.play("ok")
 		updateHud()
