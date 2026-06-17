@@ -25,21 +25,53 @@ local function freeze(root: Instance)
 	end
 end
 
+local DESK_TOP = GameConfig.DeskY - 1 -- 机の天面y
+
+-- LoadAsset失敗時の代替プリミティブ
+local function buildFallback(folder: Folder, spec)
+	local fb = spec.fallback
+	if fb == nil then
+		return
+	end
+	local p = Instance.new("Part")
+	p.Name = "Prop_" .. spec.name .. "_fallback"
+	p.Anchored = true
+	p.CanCollide = false
+	p.CanTouch = false
+	p.Color = fb.color
+	p.Material = fb.material or Enum.Material.SmoothPlastic
+	if fb.kind == "cylinder" then
+		p.Shape = Enum.PartType.Cylinder
+		p.Size = Vector3.new(fb.h, fb.d, fb.d)
+		local y = DESK_TOP + fb.h / 2 + spec.yOffset
+		-- Z周りに90°で縦置き＋鉛直軸の向き
+		p.CFrame = CFrame.new(spec.x, y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY), 0) * CFrame.Angles(0, 0, math.rad(90))
+	else
+		p.Shape = Enum.PartType.Block
+		p.Size = fb.size
+		local y = DESK_TOP + fb.size.Y / 2 + spec.yOffset
+		p.CFrame = CFrame.new(spec.x, y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY), 0)
+	end
+	p.Parent = folder
+end
+
 local function placeOne(folder: Folder, spec)
-	local deskTop = GameConfig.DeskY - 1 -- 机の天面y
+	local deskTop = DESK_TOP
 
 	local ok, container = pcall(function()
 		return InsertService:LoadAsset(spec.assetId)
 	end)
 	if not ok or container == nil then
-		warn(string.format("[typing3d] アセット読込失敗 %s (%d): %s", spec.name, spec.assetId, tostring(container)))
+		print(string.format("[typing3d] アセット読込不可 %s (%s) → 代替表示", spec.name, tostring(container)))
+		buildFallback(folder, spec)
 		return
 	end
 
 	local obj = container:GetChildren()[1]
 	if obj == nil then
-		warn("[typing3d] アセットが空: " .. spec.name)
+		warn("[typing3d] アセットが空: " .. spec.name .. " → 代替表示")
 		container:Destroy()
+		buildFallback(folder, spec)
 		return
 	end
 	obj.Name = "Prop_" .. spec.name
