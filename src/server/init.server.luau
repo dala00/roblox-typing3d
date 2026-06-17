@@ -7,6 +7,7 @@
 local Players = game:GetService("Players")
 
 local AssetProps = require(script.AssetProps)
+local Leaderboard = require(script.Leaderboard)
 
 Players.CharacterAutoLoads = true
 
@@ -24,5 +25,8 @@ end)
 
 -- Creator Store のアセット小物(マウス/コップ/スマホ)を配置
 AssetProps.spawnAll()
+
+-- 世界内ハイスコア看板＋ランキング(OrderedDataStore)
+Leaderboard.start()
 
 print("[typing3d] サーバー起動: タイピング(クライアント駆動)")

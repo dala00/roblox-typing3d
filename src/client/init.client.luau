@@ -37,6 +37,9 @@ end)
 local keys = Keyboard.build()
 local hud = Hud.new(playerGui)
 
+-- ハイスコア送信用(サーバーが自己ベストを保存→看板更新)
+local submitScore = ReplicatedStorage:WaitForChild("SubmitScore") :: RemoteEvent
+
 -- ===== ゲーム状態 =====
 local target = ""
 local charIdx = 0
@@ -243,6 +246,10 @@ function gameOverNow()
 	Sounds.play("err")
 	updateHud()
 	hud:gameOver(score, best)
+	-- サーバーへ今回のスコアを送る(自己ベストならランキング更新)
+	if score > 0 then
+		submitScore:FireServer(score)
+	end
 	task.delay(GameConfig.RetryDelay, function()
 		goReady = true
 	end)
