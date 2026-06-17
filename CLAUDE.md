@@ -51,5 +51,20 @@ Roblox の 3D タイピングゲーム（開発初期）。Rojo で Studio と�
 
 ## 現状
 
-- 動作確認用のミニゲーム（文字キューブをクリックして得点）を実装済み。3層（server/client/shared）+ RemoteEvent の連携サンプルとして機能している。
-- まだ「タイピング」本体の仕組み（入力受付・お題・判定）は未着手。
+Godot 版 3D タイピング（`godot/typing-3d`）からの移植 MVP を実装済み。アバターが巨大キーボードの上を走り、お題の次の文字キーへ移動して**ジャンプ着地で打鍵**する。1 人用。
+
+- 操作は **Roblox 標準**（WASD 移動＋SPACE ジャンプ）。タンク操作ではなく、キャラはプレイヤーのアバターそのまま。
+- ワールド生成・ゲームロジック・判定は**すべてクライアント側で完結**（各プレイヤー自分のワールド）。サーバーは起動ログのみ。スコア保存やランキングを足すときに権威ロジックをサーバーへ。
+- ファイル構成:
+  - `src/shared/GameConfig.luau` 寸法・スコア・色・単語リストなど定数。
+  - `src/client/Keyboard.luau` 暗い部屋＋机＋キーボード 26 キーを生成。キー位置/Part/ラベルを返す。発光は **Neon マテリアル**＋`SurfaceGui`(`LightInfluence=0`)で表現（Roblox に Bloom ポストプロセスは無い）。
+  - `src/client/Hud.luau` ScreenGui（お題の済/次/未入力を RichText 色分け・スコア・LV/時間・中央ポップ）。
+  - `src/client/Sounds.luau` 効果音。**Roblox は実行時 PCM 合成不可**なので Sound アセット方式。ID 未設定でも無音で安全に動く（後で `rbxassetid` を入れる）。
+  - `src/client/init.client.luau` アバター配置・ゲームループ・着地打鍵判定・スコア・ゲームオーバー/リトライ。
+- 着地判定は `Humanoid.StateChanged` の `Landed` を拾い、`HumanoidRootPart` の XZ から `StompRadius` 内の最寄りキーを「踏んだ」とする。
+
+### 未対応（素材待ち。Godot 版にあるが Roblox では後回し）
+
+- 効果音 ID（`Sounds.luau` の `Ids` が空 = 無音）。BGM（DOVA 素材はライセンス都合で持ち込まない想定）。
+- ディスプレイの発光画像・部屋の 360° パノラマ背景（画像アップロード＆審査が要るため省略。暗い部屋＋ライティングで雰囲気のみ再現）。
+- 凝った机上小物・runner.glb 由来の専用キャラ（アバター流用で代替）。
