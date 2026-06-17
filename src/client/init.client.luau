@@ -311,14 +311,22 @@ local function restart()
 	startGame()
 end
 
+local function tryRestart()
+	if gameOver and goReady then
+		restart()
+	end
+end
+
+-- PC: SPACE。モバイル/全般: 画面の「リトライ」ボタン(タップ/クリック)。
 UserInputService.InputBegan:Connect(function(input, processed)
 	if processed then
 		return
 	end
-	if gameOver and goReady and input.KeyCode == Enum.KeyCode.Space then
-		restart()
+	if input.KeyCode == Enum.KeyCode.Space then
+		tryRestart()
 	end
 end)
+hud.retry.Activated:Connect(tryRestart)
 
 -- ===== 制限時間カウントダウン =====
 RunService.Heartbeat:Connect(function(dt)

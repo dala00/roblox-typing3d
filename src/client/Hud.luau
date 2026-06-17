@@ -16,6 +16,7 @@ export type Hud = typeof(setmetatable({} :: {
 	time: TextLabel,
 	plus: TextLabel,
 	pop: TextLabel,
+	retry: TextButton,
 }, Hud))
 
 local function rgbHex(c: Color3): string
@@ -109,18 +110,38 @@ function Hud.new(parent: Instance): Hud
 	pop.TextStrokeTransparency = 1
 	pop.Parent = gui
 
-	-- 操作ヒント(左下)
+	-- 操作ヒント(左下)。端末で文言を切替。
+	local uis = game:GetService("UserInputService")
 	local hint = Instance.new("TextLabel")
-	hint.Size = UDim2.fromOffset(420, 50)
+	hint.Size = UDim2.fromOffset(460, 50)
 	hint.Position = UDim2.new(0, 18, 1, -60)
 	hint.BackgroundTransparency = 1
 	hint.TextXAlignment = Enum.TextXAlignment.Left
-	hint.Text = "WASD 移動    SPACE ジャンプで打鍵"
+	hint.Text = if uis.KeyboardEnabled
+		then "WASD 移動    SPACE ジャンプで打鍵"
+		else "スティックで移動    ジャンプボタンで打鍵"
 	hint.TextSize = 16
 	hint.Font = Enum.Font.Gotham
 	hint.TextColor3 = Color3.fromRGB(220, 220, 230)
 	hint.TextTransparency = 0.4
 	hint.Parent = gui
+
+	-- リトライボタン(タップ/クリック両対応。ゲームオーバー時のみ表示)
+	local retry = Instance.new("TextButton")
+	retry.Size = UDim2.fromOffset(240, 64)
+	retry.AnchorPoint = Vector2.new(0.5, 0.5)
+	retry.Position = UDim2.fromScale(0.5, 0.66)
+	retry.BackgroundColor3 = Color3.fromRGB(235, 90, 90)
+	retry.AutoButtonColor = true
+	retry.Text = "リトライ"
+	retry.TextSize = 30
+	retry.Font = Enum.Font.FredokaOne
+	retry.TextColor3 = Color3.fromRGB(255, 255, 255)
+	retry.Visible = false
+	retry.Parent = gui
+	local rc = Instance.new("UICorner")
+	rc.CornerRadius = UDim.new(0, 14)
+	rc.Parent = retry
 
 	return setmetatable({
 		gui = gui,
@@ -129,6 +150,7 @@ function Hud.new(parent: Instance): Hud
 		time = time,
 		plus = plus,
 		pop = pop,
+		retry = retry,
 	}, Hud)
 end
 
@@ -194,20 +216,22 @@ function Hud.popup(self: Hud, text: string, color: Color3, size: number?)
 	end)
 end
 
--- ゲームオーバー表示(消えない)
+-- ゲームオーバー表示(消えない)。リトライはボタン＋SPACE両対応。
 function Hud.gameOver(self: Hud, score: number, best: number)
 	local pop = self.pop
 	pop.TextSize = 52
-	pop.Text = string.format("GAME OVER\nSCORE %d    BEST %d\n\n[ SPACE ] でリトライ", score, best)
+	pop.Text = string.format("GAME OVER\nSCORE %d    BEST %d", score, best)
 	pop.TextColor3 = Color3.fromRGB(255, 140, 140)
 	pop.TextTransparency = 0
 	pop.TextStrokeTransparency = 0.4
+	self.retry.Visible = true
 end
 
 function Hud.clearPop(self: Hud)
 	self.pop.Text = ""
 	self.pop.TextTransparency = 1
 	self.pop.TextStrokeTransparency = 1
+	self.retry.Visible = false
 end
 
 return Hud
