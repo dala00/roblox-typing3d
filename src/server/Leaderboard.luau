@@ -10,6 +10,7 @@
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
 
@@ -17,7 +18,10 @@ local Leaderboard = {}
 
 local TOP_N = 10
 local SCORE_MAX = 10000000 -- ざっくり上限(明らかな異常値を弾く)
-local store = DataStoreService:GetOrderedDataStore("TypingHighScores_v1")
+-- Studioのテストは本番ランキングを汚さないよう別ストア(_dev)に分ける。
+-- 公開サーバーでは "TypingHighScores_v1"(本番)を使う。
+local STORE_NAME = "TypingHighScores_v2" .. (if RunService:IsStudio() then "_dev" else "")
+local store = DataStoreService:GetOrderedDataStore(STORE_NAME)
 
 local rowName: { TextLabel } = {}
 local rowScore: { TextLabel } = {}
