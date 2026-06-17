@@ -118,8 +118,8 @@ function Hud.new(parent: Instance): Hud
 	hint.BackgroundTransparency = 1
 	hint.TextXAlignment = Enum.TextXAlignment.Left
 	hint.Text = if uis.KeyboardEnabled
-		then "WASD 移動    SPACE ジャンプで打鍵"
-		else "スティックで移動    ジャンプボタンで打鍵"
+		then "WASD to move    SPACE to jump & type"
+		else "Stick to move    Jump button to type"
 	hint.TextSize = 16
 	hint.Font = Enum.Font.Gotham
 	hint.TextColor3 = Color3.fromRGB(220, 220, 230)
@@ -133,7 +133,7 @@ function Hud.new(parent: Instance): Hud
 	retry.Position = UDim2.fromScale(0.5, 0.66)
 	retry.BackgroundColor3 = Color3.fromRGB(235, 90, 90)
 	retry.AutoButtonColor = true
-	retry.Text = "リトライ"
+	retry.Text = "Retry"
 	retry.TextSize = 30
 	retry.Font = Enum.Font.FredokaOne
 	retry.TextColor3 = Color3.fromRGB(255, 255, 255)

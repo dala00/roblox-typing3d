@@ -82,7 +82,7 @@ local function buildBoard()
 	status.Size = UDim2.new(1, 0, 0, 36)
 	status.Position = UDim2.fromOffset(0, 56)
 	status.BackgroundTransparency = 1
-	status.Text = "読込中..."
+	status.Text = "Loading..."
 	status.Font = Enum.Font.Gotham
 	status.TextSize = 22
 	status.TextColor3 = Color3.fromRGB(150, 160, 180)
@@ -183,11 +183,11 @@ function Leaderboard.refresh()
 			end
 			setRows(entries)
 			if statusLabel then
-				statusLabel.Text = if #entries == 0 then "まだ記録なし" else "世界ランキング"
+				statusLabel.Text = if #entries == 0 then "No scores yet" else "Global Ranking"
 			end
 		else
 			if statusLabel then
-				statusLabel.Text = "(ランキング利用不可: API設定)"
+				statusLabel.Text = "(Ranking unavailable: enable API)"
 			end
 		end
 		refreshing = false
