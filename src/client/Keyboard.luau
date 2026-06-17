@@ -192,6 +192,39 @@ local function makeKey(folder: Folder, ch: string, base: Vector3, info: KeyInfo)
 	info.label[ch] = label
 end
 
+-- キーボード周囲を透明な壁で囲い、移動範囲を制限する。
+-- bounds はキー中心の最小/最大。そこに余白を足した外側に壁を立てる。
+local function buildWalls(folder: Folder, bounds: { minX: number, maxX: number, minZ: number, maxZ: number })
+	local cfg = GameConfig
+	local margin = cfg.KeycapTop / 2 + cfg.Pitch * 0.5 -- キー外縁から半ピッチぶんの歩く余白
+	local minX = bounds.minX - margin
+	local maxX = bounds.maxX + margin
+	local minZ = bounds.minZ - margin
+	local maxZ = bounds.maxZ + margin
+	local thick = 2
+	local height = 30 -- ジャンプで越えられない高さ
+	local cy = cfg.DeskY + height / 2
+	local wSpan = maxX - minX
+	local dSpan = maxZ - minZ
+
+	local function wall(name: string, size: Vector3, pos: Vector3)
+		local p = Instance.new("Part")
+		p.Name = name
+		p.Anchored = true
+		p.CanCollide = true
+		p.CanTouch = false
+		p.Transparency = 1
+		p.Size = size
+		p.Position = pos
+		p.Parent = folder
+	end
+
+	wall("WallLeft", Vector3.new(thick, height, dSpan + thick * 2), Vector3.new(minX - thick / 2, cy, (minZ + maxZ) / 2))
+	wall("WallRight", Vector3.new(thick, height, dSpan + thick * 2), Vector3.new(maxX + thick / 2, cy, (minZ + maxZ) / 2))
+	wall("WallBack", Vector3.new(wSpan + thick * 2, height, thick), Vector3.new((minX + maxX) / 2, cy, minZ - thick / 2))
+	wall("WallFront", Vector3.new(wSpan + thick * 2, height, thick), Vector3.new((minX + maxX) / 2, cy, maxZ + thick / 2))
+end
+
 function Keyboard.build(): KeyInfo
 	local cfg = GameConfig
 
@@ -231,6 +264,8 @@ function Keyboard.build(): KeyInfo
 			info.bounds.maxZ = math.max(info.bounds.maxZ, z)
 		end
 	end
+
+	buildWalls(folder, info.bounds)
 
 	info.homePos = info.pos[cfg.HomeKey] or Vector3.zero
 	return info
