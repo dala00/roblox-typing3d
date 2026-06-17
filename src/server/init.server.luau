@@ -6,6 +6,8 @@
 
 local Players = game:GetService("Players")
 
+local AssetProps = require(script.AssetProps)
+
 Players.CharacterAutoLoads = true
 
 -- テンプレート由来の星のスポーンパッドなど、Rojo管理外で残った
@@ -19,5 +21,8 @@ end
 Players.PlayerAdded:Connect(function(plr)
 	print(string.format("[typing3d] %s が参加", plr.Name))
 end)
+
+-- Creator Store のアセット小物(マウス/コップ/スマホ)を配置
+AssetProps.spawnAll()
 
 print("[typing3d] サーバー起動: タイピング(クライアント駆動)")

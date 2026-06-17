@@ -53,6 +53,15 @@ local GameConfig = {
 	UiDone = Color3.fromRGB(80, 220, 120), -- 入力済み
 	UiCurrent = Color3.fromRGB(255, 150, 60), -- 次の文字
 	UiRest = Color3.fromRGB(200, 205, 215), -- 未入力
+
+	-- Creator Store のアセットで置く小物(サーバーがInsertService:LoadAssetで生成)。
+	-- x/z=机上の配置, size=最大寸法(スタッド)に縮尺, rotY=向き, yOffset=高さ微調整。
+	-- 読込失敗時はその場所が空になるだけ(他は通常通り)。
+	AssetProps = {
+		{ name = "Mouse", assetId = 12401982160, x = 56, z = -2, size = 9, rotY = 0, yOffset = 0 },
+		{ name = "Cup", assetId = 2786693128, x = 64, z = -24, size = 9, rotY = 0, yOffset = 0 },
+		{ name = "Phone", assetId = 1413698014, x = -54, z = 6, size = 14, rotY = 12, yOffset = 0 },
+	},
 }
 
 -- お題の単語(英字大文字のみ)。長さ別。レベルで長い語が出やすくなる。

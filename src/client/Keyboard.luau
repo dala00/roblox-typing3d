@@ -259,24 +259,19 @@ local function buildProps(folder: Folder)
 		return p
 	end
 
-	-- ===== 右側: マウスパッド＋マウス＋マグ =====
-	block("MousePad", Vector3.new(24, 0.4, 30), Vector3.new(56, top + 0.2, -2), Color3.fromRGB(28, 28, 38), Enum.Material.SmoothPlastic)
-	block("Mouse", Vector3.new(6, 3, 9), Vector3.new(56, top + 1.7, -2), Color3.fromRGB(40, 40, 52), Enum.Material.SmoothPlastic)
-	block("MouseLed", Vector3.new(0.8, 0.5, 4), Vector3.new(56, top + 3.2, 0), Color3.fromRGB(80, 200, 255), Enum.Material.Neon)
-	pillar("MugBody", 7, 8, Vector3.new(64, top + 4, -24), Color3.fromRGB(120, 110, 130), Enum.Material.SmoothPlastic)
-	block("MugHandle", Vector3.new(1.4, 5, 1.4), Vector3.new(68.5, top + 4, -24), Color3.fromRGB(120, 110, 130), Enum.Material.SmoothPlastic)
+	-- ※ マウス/コップ/スマホは Creator Store のアセットをサーバーで配置するため、
+	--   ここではプリミティブを作らない(重なり防止)。読込失敗時のフォールバックは無し。
 
-	-- ===== 左側: ペン立て＋発光ペン＋スマホ＋付箋 =====
+	-- ===== 右側: マウスパッド(マウス本体はアセット) =====
+	block("MousePad", Vector3.new(24, 0.4, 30), Vector3.new(56, top + 0.2, -2), Color3.fromRGB(28, 28, 38), Enum.Material.SmoothPlastic)
+
+	-- ===== 左側: ペン立て＋発光ペン＋付箋 =====
 	pillar("PenCup", 9, 8, Vector3.new(-60, top + 4.5, -16), Color3.fromRGB(26, 26, 38), Enum.Material.Metal)
 	local penColors = { Color3.fromRGB(255, 90, 90), Color3.fromRGB(90, 160, 255), Color3.fromRGB(110, 255, 150) }
 	local penTilts = { 8, -6, 5 }
 	for i = 1, 3 do
 		pillar("Pen" .. i, 13, 0.9, Vector3.new(-60 + (i - 2) * 1.6, top + 9.5, -16), penColors[i], Enum.Material.Neon, penTilts[i])
 	end
-
-	-- スマホ(画面がうっすら光る)
-	block("Phone", Vector3.new(8, 0.7, 16), Vector3.new(-54, top + 0.4, 6), Color3.fromRGB(10, 10, 16), Enum.Material.SmoothPlastic, 12)
-	block("PhoneScreen", Vector3.new(6.5, 0.3, 14), Vector3.new(-54, top + 0.85, 6), Color3.fromRGB(90, 120, 210), Enum.Material.Neon, 12)
 
 	-- 付箋メモ
 	block("StickyNote", Vector3.new(6, 0.5, 6), Vector3.new(-48, top + 0.3, -6), Color3.fromRGB(220, 205, 80), Enum.Material.SmoothPlastic, -15)
