@@ -50,7 +50,7 @@ local function setupAtmosphere()
 	local spot = Instance.new("SpotLight")
 	spot.Face = Enum.NormalId.Front
 	spot.Color = Color3.fromRGB(255, 150, 220)
-	spot.Brightness = 4
+	spot.Brightness = 2.5
 	spot.Range = 200
 	spot.Angle = 75
 	spot.Shadows = true
@@ -144,8 +144,8 @@ local function buildLaptop(folder: Folder)
 	-- 画面からキーボードへ降りる光(雰囲気の主光源)
 	local light = Instance.new("PointLight")
 	light.Color = Color3.fromRGB(180, 170, 255)
-	light.Brightness = 2.5
-	light.Range = 90
+	light.Brightness = 1.2
+	light.Range = 70
 	light.Parent = screen
 end
 

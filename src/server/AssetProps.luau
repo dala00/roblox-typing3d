@@ -9,19 +9,26 @@ local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
 
 local AssetProps = {}
 
--- 全パーツを固定(落下・衝突しない置物にする)
+-- パーツを固定し、光りすぎ(Neon/高反射)を鎮める
+local function tamePart(p: BasePart)
+	p.Anchored = true
+	p.CanCollide = false
+	p.CanTouch = false
+	p.Reflectance = 0
+	-- 自発光・鏡面っぽい素材は通常素材へ落とす
+	if p.Material == Enum.Material.Neon or p.Material == Enum.Material.ForceField or p.Material == Enum.Material.Glass then
+		p.Material = Enum.Material.SmoothPlastic
+	end
+end
+
 local function freeze(root: Instance)
 	for _, d in root:GetDescendants() do
 		if d:IsA("BasePart") then
-			d.Anchored = true
-			d.CanCollide = false
-			d.CanTouch = false
+			tamePart(d)
 		end
 	end
 	if root:IsA("BasePart") then
-		root.Anchored = true
-		root.CanCollide = false
-		root.CanTouch = false
+		tamePart(root)
 	end
 end
 
