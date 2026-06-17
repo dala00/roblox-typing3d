@@ -225,6 +225,63 @@ local function buildWalls(folder: Folder, bounds: { minX: number, maxX: number, 
 	wall("WallFront", Vector3.new(wSpan + thick * 2, height, thick), Vector3.new((minX + maxX) / 2, cy, maxZ + thick / 2))
 end
 
+-- キーボード左右の机上に置く小物(雰囲気用)。壁の外側=プレイ範囲外に置く。
+local function buildProps(folder: Folder)
+	local cfg = GameConfig
+	local top = cfg.DeskY - 1 -- 机の天面y
+
+	local function block(name: string, size: Vector3, pos: Vector3, color: Color3, material: Enum.Material, rotY: number?)
+		local p = Instance.new("Part")
+		p.Name = name
+		p.Anchored = true
+		p.CanCollide = false
+		p.Shape = Enum.PartType.Block
+		p.Size = size
+		p.CFrame = CFrame.new(pos) * CFrame.Angles(0, math.rad(rotY or 0), 0)
+		p.Color = color
+		p.Material = material
+		p.Parent = folder
+		return p
+	end
+
+	-- 立てた円柱(Cylinderは既定でX軸が軸なのでZ周りに90°回して縦置き)
+	local function pillar(name: string, height: number, diam: number, pos: Vector3, color: Color3, material: Enum.Material, tiltDeg: number?)
+		local p = Instance.new("Part")
+		p.Name = name
+		p.Anchored = true
+		p.CanCollide = false
+		p.Shape = Enum.PartType.Cylinder
+		p.Size = Vector3.new(height, diam, diam)
+		p.CFrame = CFrame.new(pos) * CFrame.Angles(0, 0, math.rad(90 + (tiltDeg or 0)))
+		p.Color = color
+		p.Material = material
+		p.Parent = folder
+		return p
+	end
+
+	-- ===== 右側: マウスパッド＋マウス＋マグ =====
+	block("MousePad", Vector3.new(24, 0.4, 30), Vector3.new(56, top + 0.2, -2), Color3.fromRGB(28, 28, 38), Enum.Material.SmoothPlastic)
+	block("Mouse", Vector3.new(6, 3, 9), Vector3.new(56, top + 1.7, -2), Color3.fromRGB(40, 40, 52), Enum.Material.SmoothPlastic)
+	block("MouseLed", Vector3.new(0.8, 0.5, 4), Vector3.new(56, top + 3.2, 0), Color3.fromRGB(80, 200, 255), Enum.Material.Neon)
+	pillar("MugBody", 7, 8, Vector3.new(64, top + 4, -24), Color3.fromRGB(120, 110, 130), Enum.Material.SmoothPlastic)
+	block("MugHandle", Vector3.new(1.4, 5, 1.4), Vector3.new(68.5, top + 4, -24), Color3.fromRGB(120, 110, 130), Enum.Material.SmoothPlastic)
+
+	-- ===== 左側: ペン立て＋発光ペン＋スマホ＋付箋 =====
+	pillar("PenCup", 9, 8, Vector3.new(-60, top + 4.5, -16), Color3.fromRGB(26, 26, 38), Enum.Material.Metal)
+	local penColors = { Color3.fromRGB(255, 90, 90), Color3.fromRGB(90, 160, 255), Color3.fromRGB(110, 255, 150) }
+	local penTilts = { 8, -6, 5 }
+	for i = 1, 3 do
+		pillar("Pen" .. i, 13, 0.9, Vector3.new(-60 + (i - 2) * 1.6, top + 9.5, -16), penColors[i], Enum.Material.Neon, penTilts[i])
+	end
+
+	-- スマホ(画面がうっすら光る)
+	block("Phone", Vector3.new(8, 0.7, 16), Vector3.new(-54, top + 0.4, 6), Color3.fromRGB(10, 10, 16), Enum.Material.SmoothPlastic, 12)
+	block("PhoneScreen", Vector3.new(6.5, 0.3, 14), Vector3.new(-54, top + 0.85, 6), Color3.fromRGB(90, 120, 210), Enum.Material.Neon, 12)
+
+	-- 付箋メモ
+	block("StickyNote", Vector3.new(6, 0.5, 6), Vector3.new(-48, top + 0.3, -6), Color3.fromRGB(220, 205, 80), Enum.Material.SmoothPlastic, -15)
+end
+
 function Keyboard.build(): KeyInfo
 	local cfg = GameConfig
 
@@ -236,6 +293,7 @@ function Keyboard.build(): KeyInfo
 
 	buildDesk(folder)
 	buildLaptop(folder)
+	buildProps(folder)
 
 	local info: KeyInfo = {
 		pos = {},
