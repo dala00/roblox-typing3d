@@ -57,18 +57,22 @@ local GameConfig = {
 	-- Creator Store のアセットで置く小物(サーバーがInsertService:LoadAssetで生成)。
 	-- x/z=机上の配置, size=最大寸法(スタッド)に縮尺, rotY=向き, yOffset=高さ微調整。
 	-- 読込失敗時はその場所が空になるだけ(他は通常通り)。
+	-- rotX/rotY/rotZ=向き(度)。配置は回転後の寸法から机に接地＆水平中心合わせ。
 	-- fallback: LoadAsset失敗時に出すプリミティブ(kind=block/cylinder)。
 	AssetProps = {
 		{
-			name = "Mouse", assetId = 12401982160, x = 56, z = -2, size = 9, rotY = 0, yOffset = 0,
+			name = "Mouse", assetId = 12401982160, x = 56, z = -2, size = 9,
+			rotX = 0, rotY = -90, rotZ = 0, yOffset = 0,
 			fallback = { kind = "block", size = Vector3.new(6, 3, 9), color = Color3.fromRGB(40, 40, 52) },
 		},
 		{
-			name = "Cup", assetId = 2786693128, x = 64, z = -24, size = 9, rotY = 0, yOffset = 0,
+			name = "Cup", assetId = 2786693128, x = 64, z = -24, size = 9,
+			rotX = -90, rotY = 0, rotZ = 0, yOffset = 0,
 			fallback = { kind = "cylinder", h = 7, d = 8, color = Color3.fromRGB(120, 110, 130) },
 		},
 		{
-			name = "Phone", assetId = 1413698014, x = -54, z = 6, size = 14, rotY = 12, yOffset = 0,
+			name = "Phone", assetId = 1413698014, x = -54, z = 6, size = 14,
+			rotX = -90, rotY = 12, rotZ = 0, yOffset = 0,
 			fallback = { kind = "block", size = Vector3.new(8, 0.8, 16), color = Color3.fromRGB(22, 22, 32) },
 		},
 	},

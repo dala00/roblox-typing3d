@@ -77,6 +77,8 @@ local function placeOne(folder: Folder, spec)
 	obj.Name = "Prop_" .. spec.name
 	freeze(obj)
 
+	local rot = CFrame.Angles(math.rad(spec.rotX or 0), math.rad(spec.rotY or 0), math.rad(spec.rotZ or 0))
+
 	if obj:IsA("Model") then
 		-- 最大寸法を spec.size に合わせて縮尺
 		local _, bsize = obj:GetBoundingBox()
@@ -84,16 +86,22 @@ local function placeOne(folder: Folder, spec)
 		if maxDim > 0 then
 			obj:ScaleTo(spec.size / maxDim)
 		end
-		-- 机上に底面を乗せ、鉛直軸まわりに回転。pivotとAABB中心のズレを補正して
-		-- AABB中心を目標位置へ正確に置く。
-		local centerCF, size2 = obj:GetBoundingBox()
-		local rel = centerCF:Inverse() * obj:GetPivot()
-		local y = deskTop + size2.Y / 2 + spec.yOffset
-		local desiredCenter = CFrame.new(spec.x, y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY), 0)
-		obj:PivotTo(desiredCenter * rel)
+		-- まず向きだけ適用(原点で)
+		obj:PivotTo(rot)
+		-- 回転後の有向BBから、世界AABBの高さ半分を求めて底面を机に乗せる。
+		-- 水平中心(=BB中心)を (x, z) に合わせる。
+		local obbCF, obbSize = obj:GetBoundingBox()
+		local halfH = obbSize.X / 2 * math.abs(obbCF.RightVector.Y)
+			+ obbSize.Y / 2 * math.abs(obbCF.UpVector.Y)
+			+ obbSize.Z / 2 * math.abs(obbCF.LookVector.Y)
+		local desired = Vector3.new(spec.x, deskTop + halfH + spec.yOffset, spec.z)
+		obj:PivotTo(obj:GetPivot() + (desired - obbCF.Position))
 	elseif obj:IsA("BasePart") then
-		local y = deskTop + obj.Size.Y / 2 + spec.yOffset
-		obj.CFrame = CFrame.new(spec.x, y, spec.z) * CFrame.Angles(0, math.rad(spec.rotY), 0)
+		local s = obj.Size
+		local halfH = s.X / 2 * math.abs(rot.RightVector.Y)
+			+ s.Y / 2 * math.abs(rot.UpVector.Y)
+			+ s.Z / 2 * math.abs(rot.LookVector.Y)
+		obj.CFrame = CFrame.new(spec.x, deskTop + halfH + spec.yOffset, spec.z) * rot
 	end
 
 	obj.Parent = folder
