@@ -46,4 +46,24 @@ function Sounds.play(name: string)
 	end
 end
 
+-- ===== BGM(ループ・静かめ) =====
+local BgmId = "rbxassetid://107646882617030"
+local BgmVolume = 0.5 -- 既定値(0〜10、0=無音)
+
+local bgm: Sound? = nil
+
+function Sounds.startBgm()
+	if BgmId == "" or bgm ~= nil then
+		return
+	end
+	local s = Instance.new("Sound")
+	s.Name = "BGM"
+	s.SoundId = BgmId
+	s.Looped = true
+	s.Volume = BgmVolume
+	s.Parent = SoundService
+	s:Play()
+	bgm = s
+end
+
 return Sounds

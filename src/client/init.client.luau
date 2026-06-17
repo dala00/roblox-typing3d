@@ -323,6 +323,7 @@ RunService.Heartbeat:Connect(function(dt)
 end)
 
 -- ===== 開始 =====
+Sounds.startBgm()
 task.wait(0.5) -- アバターがキーに乗るのを待つ
 startGame()
 
