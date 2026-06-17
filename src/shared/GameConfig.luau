@@ -67,7 +67,7 @@ local GameConfig = {
 		},
 		{
 			name = "Cup", assetId = 2786693128, x = 64, z = -24, size = 9,
-			rotX = -90, rotY = 0, rotZ = 0, yOffset = 0,
+			rotX = 0, rotY = 0, rotZ = 90, yOffset = 0,
 			fallback = { kind = "cylinder", h = 7, d = 8, color = Color3.fromRGB(120, 110, 130) },
 		},
 		{
