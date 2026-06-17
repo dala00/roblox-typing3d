@@ -20,6 +20,10 @@ local GameConfig = {
 	ScreenH = 36, -- 画面の高さ
 	ScreenTiltDeg = 12, -- 後ろへの傾き(度)
 	DeckDepthMargin = 10, -- デッキ奥行きのキー範囲からの余白
+	-- ディスプレイに貼る画像(rbxassetid)。空なら光る四角のまま。
+	DisplayImageId = "rbxassetid://119139201724852",
+	-- 背景の部屋画像(rbxassetid)。空なら部屋背景なし。
+	RoomImageId = "rbxassetid://73576819764784",
 
 	-- 3行のキー配列と横ずらし(キー数ぶん)。QWERTY=奥、ZXC=手前。
 	Rows = { "QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM" },

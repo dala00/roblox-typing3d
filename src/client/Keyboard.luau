@@ -32,9 +32,23 @@ local function setupAtmosphere()
 	Lighting.Brightness = 1.0
 	Lighting.ClockTime = 0 -- 夜
 	Lighting.GlobalShadows = true
-	Lighting.FogColor = Color3.fromRGB(4, 6, 12)
-	Lighting.FogStart = 60
-	Lighting.FogEnd = 260
+	Lighting.FogColor = Color3.fromRGB(0, 0, 0)
+	Lighting.FogStart = 120
+	Lighting.FogEnd = 420
+
+	-- 背景は真っ黒・星なし。星/太陽/月を消した真っ黒な空にする。
+	local sky = Instance.new("Sky")
+	sky.CelestialBodiesShown = false
+	sky.StarCount = 0
+	sky.SunAngularSize = 0
+	sky.MoonAngularSize = 0
+	sky.SkyboxBk = "rbxasset://textures/blackBkg_SkyBox.png"
+	sky.SkyboxDn = "rbxasset://textures/blackBkg_SkyBox.png"
+	sky.SkyboxFt = "rbxasset://textures/blackBkg_SkyBox.png"
+	sky.SkyboxLf = "rbxasset://textures/blackBkg_SkyBox.png"
+	sky.SkyboxRt = "rbxasset://textures/blackBkg_SkyBox.png"
+	sky.SkyboxUp = "rbxasset://textures/blackBkg_SkyBox.png"
+	sky.Parent = Lighting
 
 	-- 画面光に見立てたマゼンタ寄りの主光源(キーボード奥から手前へ照らす)
 	local mainPart = Instance.new("Part")
@@ -74,18 +88,24 @@ local function setupAtmosphere()
 	omni.Parent = fill
 end
 
--- 机(一番下の台。ノートPCデッキの下に広がり、キーから外れて歩いても落下しない)
+-- 机(一番下の台)。手前(+Z=人が座る側)はキーボードのすぐ先で切って短くし、
+-- その先の床/風景が見えるようにする。奥(-Z)はディスプレイの先まで伸ばす。
 local function buildDesk(folder: Folder)
 	local cfg = GameConfig
 	local kbdWidth = 10 * cfg.Pitch
-	local kbdDepth = #cfg.Rows * cfg.Pitch
+
+	-- キーは z: 0(手前) .. -(rows-1)*pitch(奥)
+	local zFront = cfg.Pitch * 1.5 -- 手前の切り位置(キーボード前端のちょっと先)
+	local zBack = -130 -- 奥は遠くまで
+	local depth = zFront - zBack
+	local centerZ = (zFront + zBack) / 2
 
 	local desk = Instance.new("Part")
 	desk.Name = "Desk"
 	desk.Anchored = true
-	desk.Size = Vector3.new(kbdWidth + 90, 4, kbdDepth + 90)
+	desk.Size = Vector3.new(kbdWidth + 90, 4, depth)
 	-- 天面をデッキより少し下(DeskY-1)に。机→デッキ→キーの段差を作る。
-	desk.Position = Vector3.new(0, cfg.DeskY - 1 - 2, -kbdDepth / 2 + cfg.Pitch / 2)
+	desk.Position = Vector3.new(0, cfg.DeskY - 1 - 2, centerZ)
 	desk.Color = Color3.fromRGB(8, 8, 11)
 	desk.Material = Enum.Material.Wood
 	desk.TopSurface = Enum.SurfaceType.Smooth
@@ -138,6 +158,21 @@ local function buildLaptop(folder: Folder)
 	screen.Color = Color3.fromRGB(140, 160, 235)
 	screen.Material = Enum.Material.Neon
 	screen.Parent = folder
+
+	-- ディスプレイに画像を貼る(IDが設定されていれば)。プレイヤー側=+Z面(Back)に表示。
+	if cfg.DisplayImageId ~= "" then
+		local gui = Instance.new("SurfaceGui")
+		gui.Face = Enum.NormalId.Back
+		gui.LightInfluence = 0 -- 暗くても画面は明るいまま(光る画面風)
+		gui.Parent = screen
+
+		local img = Instance.new("ImageLabel")
+		img.Size = UDim2.fromScale(1, 1)
+		img.BackgroundTransparency = 1
+		img.Image = cfg.DisplayImageId
+		img.ScaleType = Enum.ScaleType.Stretch
+		img.Parent = gui
+	end
 
 	-- 画面からキーボードへ降りる光(雰囲気の主光源)
 	local light = Instance.new("PointLight")
@@ -275,6 +310,83 @@ local function buildProps(folder: Folder)
 	block("StickyNote", Vector3.new(6, 0.5, 6), Vector3.new(-48, top + 0.3, -6), Color3.fromRGB(220, 205, 80), Enum.Material.SmoothPlastic, -15)
 end
 
+-- 背景の部屋: 円柱の内側に画像を「ちょうど1周」だけ巻く。
+-- 縦パネルを円状に並べ、各パネルに画像の横スライス(1/segments)を表示する。
+-- スライスはスケール(割合)指定なので画像のピクセル数を知らなくても合う。
+-- RoomImageId が空ならスキップ。
+local function buildRoom(folder: Folder)
+	local id = GameConfig.RoomImageId
+	if id == "" then
+		return
+	end
+	local segments = 50 -- 円の分割数(多いほど滑らか)
+	local radius = 160
+	-- 全体的に下げて埋める＋縦を伸ばして潰れを緩和(下へ深く)
+	local yFloor, yCeil = -120, 25
+	local height = yCeil - yFloor
+	local centerY = (yFloor + yCeil) / 2
+	local dim = Color3.fromRGB(95, 95, 110) -- 減光(暗い部屋になじませる)
+	local chord = 2 * radius * math.sin(math.pi / segments)
+	local segW = chord * 1.05 -- 少し広げて継ぎ目を消す
+	-- 継ぎ目(画像の端と端が出会う所)をディスプレイの裏(-Z)に持っていく
+	local angOffset = math.pi
+
+	for i = 0, segments - 1 do
+		local ang = angOffset + (i / segments) * math.pi * 2
+		local dir = Vector3.new(math.sin(ang), 0, math.cos(ang)) -- 外向き
+		local pos = Vector3.new(dir.X * radius, centerY, dir.Z * radius)
+
+		local p = Instance.new("Part")
+		p.Name = "RoomSeg" .. i
+		p.Anchored = true
+		p.CanCollide = false
+		p.CanQuery = false
+		p.CanTouch = false
+		p.Size = Vector3.new(segW, height, 1)
+		-- 外を向ける(+Z=Back面が中心=プレイヤー側を向く)。内側から見て左右反転しない。
+		p.CFrame = CFrame.lookAt(pos, pos + dir)
+		p.Color = Color3.fromRGB(4, 5, 9)
+		p.Material = Enum.Material.SmoothPlastic
+		p.Parent = folder
+
+		local gui = Instance.new("SurfaceGui")
+		gui.Face = Enum.NormalId.Back
+		gui.LightInfluence = 0
+		-- 画像をN枚分の幅に引き伸ばすため、ピクセル上限を超えないよう解像度を落とす
+		gui.PixelsPerStud = 8
+		gui.Parent = p
+
+		-- クリップ枠の中で、横N枚分の画像をiぶんずらして該当スライスだけ見せる
+		local clip = Instance.new("Frame")
+		clip.Size = UDim2.fromScale(1, 1)
+		clip.BackgroundTransparency = 1
+		clip.ClipsDescendants = true
+		clip.Parent = gui
+
+		local img = Instance.new("ImageLabel")
+		img.BackgroundTransparency = 1
+		img.Image = id
+		img.ImageColor3 = dim
+		img.ScaleType = Enum.ScaleType.Stretch
+		img.Size = UDim2.fromScale(segments, 1)
+		-- 内側から見ると各パネルが左右反転するため、スライス順も逆にして境界を合わせる
+		img.Position = UDim2.fromScale(-(segments - 1 - i), 0)
+		img.Parent = clip
+	end
+
+	-- 床(暗いまま。中央は机が覆う)
+	local floor = Instance.new("Part")
+	floor.Name = "RoomFloor"
+	floor.Anchored = true
+	floor.CanCollide = false
+	floor.CanQuery = false
+	floor.Size = Vector3.new(radius * 2.2, 2, radius * 2.2)
+	floor.Position = Vector3.new(0, yFloor, 0)
+	floor.Color = Color3.fromRGB(6, 6, 9)
+	floor.Material = Enum.Material.SmoothPlastic
+	floor.Parent = folder
+end
+
 function Keyboard.build(): KeyInfo
 	local cfg = GameConfig
 
@@ -284,6 +396,7 @@ function Keyboard.build(): KeyInfo
 	folder.Name = "TypingWorld"
 	folder.Parent = workspace
 
+	buildRoom(folder)
 	buildDesk(folder)
 	buildLaptop(folder)
 	buildProps(folder)
