@@ -8,6 +8,14 @@ local Players = game:GetService("Players")
 
 Players.CharacterAutoLoads = true
 
+-- テンプレート由来の星のスポーンパッドなど、Rojo管理外で残った
+-- 不要なSpawnLocationを実行時に掃除する(管理下の "SpawnPad" は残す)。
+for _, inst in workspace:GetDescendants() do
+	if inst:IsA("SpawnLocation") and inst.Name ~= "SpawnPad" then
+		inst:Destroy()
+	end
+end
+
 Players.PlayerAdded:Connect(function(plr)
 	print(string.format("[typing3d] %s が参加", plr.Name))
 end)

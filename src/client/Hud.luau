@@ -25,7 +25,8 @@ function Hud.new(parent: Instance): Hud
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "TypingHud"
 	gui.ResetOnSpawn = false
-	gui.IgnoreGuiInset = true
+	-- Robloxのトップバー(左上メニュー/右上一覧)と被らないよう、その下に配置する
+	gui.IgnoreGuiInset = false
 	gui.Parent = parent
 
 	-- 上部の薄い帯

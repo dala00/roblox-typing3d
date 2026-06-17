@@ -20,8 +20,18 @@ local Keyboard = require(script.Keyboard)
 local Hud = require(script.Hud)
 local Sounds = require(script.Sounds)
 
+local StarterGui = game:GetService("StarterGui")
+
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+
+-- 1人用なので不要なコアUIを消して画面を広く使う(スコア等との重なりも防ぐ)
+pcall(function()
+	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.PlayerList, false)
+	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Chat, false)
+	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, false)
+	StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.EmotesMenu, false)
+end)
 
 -- ===== ワールド生成 =====
 local keys = Keyboard.build()
