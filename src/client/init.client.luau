@@ -12,10 +12,13 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
-local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
-local Keyboard = require(script.Parent.Keyboard)
-local Hud = require(script.Parent.Hud)
-local Sounds = require(script.Parent.Sounds)
+-- init.client.luau があるフォルダ自体がこの LocalScript(Client)。
+-- 兄弟の .luau は「この LocalScript の子」になるので script.<名前> で参照する。
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local GameConfig = require(Shared.GameConfig)
+local Keyboard = require(script.Keyboard)
+local Hud = require(script.Hud)
+local Sounds = require(script.Sounds)
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
