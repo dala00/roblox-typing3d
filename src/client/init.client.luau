@@ -246,6 +246,7 @@ local function setupCharacter(char: Model)
 	local humanoid = char:WaitForChild("Humanoid") :: Humanoid
 	char:WaitForChild("HumanoidRootPart")
 	currentHumanoid = humanoid
+	humanoid.WalkSpeed = GameConfig.WalkSpeed
 	placeOnHome(char)
 
 	-- 着地イベントで打鍵判定(ジャンプ→着地で踏んだキーを判定)

@@ -8,10 +8,13 @@
 local GameConfig = {
 	-- ===== キーボードの寸法（スタッド） =====
 	-- Robloxアバター(約5スタッド)が乗れるよう、実物より大きく作る。
-	KeycapTop = 7.0, -- キートップの一辺(正方形)
+	KeycapTop = 5.5, -- キートップの一辺(正方形)
 	KeycapHeight = 1.5, -- キーの高さ
-	Pitch = 9.0, -- キー中心間の距離
-	DeskY = 0.0, -- 机の天面y。キーはこの上に乗る
+	Pitch = 7.5, -- キー中心間の距離
+	DeskY = 0.0, -- キーが乗る基準面y(ノートPCデッキの天面)
+
+	-- アバターの移動速度(既定16では巨大キーボード上で遅すぎる)
+	WalkSpeed = 30,
 
 	-- 3行のキー配列と横ずらし(キー数ぶん)。QWERTY=奥、ZXC=手前。
 	Rows = { "QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM" },
@@ -22,7 +25,7 @@ local GameConfig = {
 
 	-- ===== 判定 =====
 	-- 着地時、最寄りキーがこの半径内なら「踏んだ」と判定
-	StompRadius = 5.4,
+	StompRadius = 4.5,
 
 	-- ===== スコア =====
 	ScorePer = 100, -- 1キー正解 × コンボ

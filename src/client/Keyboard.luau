@@ -72,7 +72,7 @@ local function setupAtmosphere()
 	omni.Parent = fill
 end
 
--- 机(キーボードを乗せる台。キーから外れて歩いてもここに着地して落下しない)
+-- 机(一番下の台。ノートPCデッキの下に広がり、キーから外れて歩いても落下しない)
 local function buildDesk(folder: Folder)
 	local cfg = GameConfig
 	local kbdWidth = 10 * cfg.Pitch
@@ -81,12 +81,70 @@ local function buildDesk(folder: Folder)
 	local desk = Instance.new("Part")
 	desk.Name = "Desk"
 	desk.Anchored = true
-	desk.Size = Vector3.new(kbdWidth + 80, 4, kbdDepth + 80)
-	desk.Position = Vector3.new(0, cfg.DeskY - 2, -kbdDepth / 2 + cfg.Pitch / 2)
-	desk.Color = Color3.fromRGB(10, 10, 14)
-	desk.Material = Enum.Material.SmoothPlastic
+	desk.Size = Vector3.new(kbdWidth + 90, 4, kbdDepth + 90)
+	-- 天面をデッキより少し下(DeskY-1)に。机→デッキ→キーの段差を作る。
+	desk.Position = Vector3.new(0, cfg.DeskY - 1 - 2, -kbdDepth / 2 + cfg.Pitch / 2)
+	desk.Color = Color3.fromRGB(8, 8, 11)
+	desk.Material = Enum.Material.Wood
 	desk.TopSurface = Enum.SurfaceType.Smooth
 	desk.Parent = folder
+end
+
+-- ノートPC: キーボードの土台(デッキ)と、奥に立つ発光ディスプレイ。
+-- 画像素材は無いのでディスプレイはNeonの面で「光る四角」として表現する。
+local function buildLaptop(folder: Folder)
+	local cfg = GameConfig
+	local kbdWidth = 10 * cfg.Pitch
+	local rowsN = #cfg.Rows
+	-- キーは x≈±kbdWidth/2、z: 0 .. -(rowsN-1)*pitch を占める
+	local centerZ = -((rowsN - 1) * cfg.Pitch) / 2
+	local deckThick = 1.5
+
+	-- デッキ(キーボードの土台。天面=DeskY、キーはこの上に乗る)
+	local deck = Instance.new("Part")
+	deck.Name = "LaptopDeck"
+	deck.Anchored = true
+	deck.Size = Vector3.new(kbdWidth + 8, deckThick, rowsN * cfg.Pitch + 10)
+	deck.Position = Vector3.new(0, cfg.DeskY - deckThick / 2, centerZ)
+	deck.Color = Color3.fromRGB(26, 26, 34)
+	deck.Material = Enum.Material.Metal
+	deck.TopSurface = Enum.SurfaceType.Smooth
+	deck.Parent = folder
+
+	-- ヒンジ(デッキ奥端)。画面はここから上へ、やや後ろへ倒して立てる。
+	local backZ = centerZ - (rowsN * cfg.Pitch + 10) / 2
+	local hinge = CFrame.new(0, cfg.DeskY, backZ) * CFrame.Angles(math.rad(-12), 0, 0)
+
+	local screenH = 36
+	local screenW = screenH * 16 / 9
+
+	-- 画面の裏ガワ(暗い板)
+	local back = Instance.new("Part")
+	back.Name = "DisplayBack"
+	back.Anchored = true
+	back.Size = Vector3.new(screenW + 3, screenH + 3, 1.5)
+	back.CFrame = hinge * CFrame.new(0, screenH / 2 + 1, -0.9)
+	back.Color = Color3.fromRGB(18, 18, 24)
+	back.Material = Enum.Material.Metal
+	back.Parent = folder
+
+	-- 発光ディスプレイ(光る四角)
+	local screen = Instance.new("Part")
+	screen.Name = "DisplayScreen"
+	screen.Anchored = true
+	screen.CanCollide = false
+	screen.Size = Vector3.new(screenW, screenH, 0.4)
+	screen.CFrame = hinge * CFrame.new(0, screenH / 2 + 1, 0)
+	screen.Color = Color3.fromRGB(140, 160, 235)
+	screen.Material = Enum.Material.Neon
+	screen.Parent = folder
+
+	-- 画面からキーボードへ降りる光(雰囲気の主光源)
+	local light = Instance.new("PointLight")
+	light.Color = Color3.fromRGB(180, 170, 255)
+	light.Brightness = 2.5
+	light.Range = 90
+	light.Parent = screen
 end
 
 local function makeKey(folder: Folder, ch: string, base: Vector3, info: KeyInfo)
@@ -121,6 +179,9 @@ local function makeKey(folder: Folder, ch: string, base: Vector3, info: KeyInfo)
 	label.TextColor3 = cfg.LabelBase
 	label.TextStrokeTransparency = 0.4
 	label.TextStrokeColor3 = Color3.fromRGB(20, 60, 120)
+	-- Top面のSurfaceGuiは文字が90°寝るので、見る向き(手前=+Z)に合わせて回す。
+	-- もし逆向きに傾いたら -90 にする。
+	label.Rotation = 90
 	label.Parent = gui
 
 	-- 上面中心(着地判定はXZのみ使うがYも入れておく)
@@ -139,6 +200,7 @@ function Keyboard.build(): KeyInfo
 	folder.Parent = workspace
 
 	buildDesk(folder)
+	buildLaptop(folder)
 
 	local info: KeyInfo = {
 		pos = {},
