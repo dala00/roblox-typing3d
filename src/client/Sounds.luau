@@ -11,11 +11,11 @@ local Sounds = {}
 
 -- name -> rbxassetid。空文字なら無音(放置でOK)。
 local Ids: { [string]: string } = {
-	jump = "",
-	stomp = "",
-	ok = "",
-	err = "",
-	clear = "",
+	jump = "", -- ジャンプ音は無し
+	stomp = "", -- 着地音は無し
+	ok = "rbxassetid://128170212983132", -- 正解
+	err = "rbxassetid://91730465068215", -- お手つき
+	clear = "", -- クリア音は無し
 }
 
 -- 事前生成してSoundServiceにぶら下げておく
