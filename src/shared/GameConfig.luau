@@ -16,6 +16,11 @@ local GameConfig = {
 	-- アバターの移動速度(既定16では巨大キーボード上で遅すぎる)
 	WalkSpeed = 26,
 
+	-- ノートPCディスプレイの寸法(クライアントの画面生成とサーバーの看板で共有)
+	ScreenH = 36, -- 画面の高さ
+	ScreenTiltDeg = 12, -- 後ろへの傾き(度)
+	DeckDepthMargin = 10, -- デッキ奥行きのキー範囲からの余白
+
 	-- 3行のキー配列と横ずらし(キー数ぶん)。QWERTY=奥、ZXC=手前。
 	Rows = { "QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM" },
 	RowStagger = { 0.0, 0.5, 1.0 },
@@ -102,5 +107,21 @@ GameConfig.Words = {
 	-- 8
 	"KEYBOARD", "COMPUTER", "MOUNTAIN", "ELEPHANT", "SUNLIGHT", "MOONBEAM", "FIREWORK", "DINOSAUR",
 }
+
+-- 画面(ディスプレイ)の幅
+function GameConfig.screenWidth(): number
+	return GameConfig.ScreenH * 16 / 9
+end
+
+-- ディスプレイ中心のCFrame(前=+Z面がプレイヤー側)。
+-- クライアントの画面生成(buildLaptop)とサーバーの看板配置で同じ値を使う。
+function GameConfig.screenCenterCFrame(): CFrame
+	local rowsN = #GameConfig.Rows
+	local centerZ = -((rowsN - 1) * GameConfig.Pitch) / 2
+	local deckDepth = rowsN * GameConfig.Pitch + GameConfig.DeckDepthMargin
+	local backZ = centerZ - deckDepth / 2
+	local hinge = CFrame.new(0, GameConfig.DeskY, backZ) * CFrame.Angles(math.rad(-GameConfig.ScreenTiltDeg), 0, 0)
+	return hinge * CFrame.new(0, GameConfig.ScreenH / 2 + 1, 0)
+end
 
 return GameConfig

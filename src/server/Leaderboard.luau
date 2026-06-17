@@ -11,6 +11,8 @@ local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
+
 local Leaderboard = {}
 
 local TOP_N = 10
@@ -23,29 +25,45 @@ local statusLabel: TextLabel? = nil
 
 -- ===== 看板 =====
 local function buildBoard()
+	-- ディスプレイ画面の左部分に重ねて「画面に表示されてる風」にする。
+	local screenCenter = GameConfig.screenCenterCFrame()
+	local screenW = GameConfig.screenWidth()
+	local screenH = GameConfig.ScreenH
+	local boardW = screenW * 0.4
+	local boardH = screenH * 0.86
+	-- 画面左寄り・少し手前(+Z)に配置。向き・傾きは画面と同じ。
+	local localX = -screenW / 2 + boardW / 2 + screenW * 0.03
+
 	local part = Instance.new("Part")
 	part.Name = "Leaderboard"
 	part.Anchored = true
 	part.CanCollide = false
 	part.CanTouch = false
-	part.Size = Vector3.new(40, 48, 1)
+	part.Size = Vector3.new(boardW, boardH, 0.3)
 	part.Color = Color3.fromRGB(8, 10, 16)
 	part.Material = Enum.Material.SmoothPlastic
-	-- ディスプレイの左脇、プレイヤー(キーボード上)から見える向き(+Z)に少し振る
-	part.CFrame = CFrame.new(-58, 24, -18) * CFrame.Angles(math.rad(-8), math.rad(14), 0)
+	part.CFrame = screenCenter * CFrame.new(localX, 0, 0.5)
 	part.Parent = workspace
 
 	local gui = Instance.new("SurfaceGui")
-	gui.Face = Enum.NormalId.Front
+	-- Partの「Front」面は-Z側。プレイヤーは+Z側から見るので Back(+Z)に表示する。
+	gui.Face = Enum.NormalId.Back
 	gui.CanvasSize = Vector2.new(400, 480)
 	gui.LightInfluence = 0 -- 暗い部屋でも読める
+	gui.Brightness = 1.5
 	gui.Parent = part
 
 	local bg = Instance.new("Frame")
 	bg.Size = UDim2.fromScale(1, 1)
-	bg.BackgroundColor3 = Color3.fromRGB(10, 12, 20)
-	bg.BackgroundTransparency = 0.15
+	bg.BackgroundColor3 = Color3.fromRGB(12, 14, 24)
+	bg.BackgroundTransparency = 0.05
 	bg.Parent = gui
+
+	-- 縁取り(暗い部屋でも板の存在が分かるように)
+	local stroke = Instance.new("UIStroke")
+	stroke.Thickness = 4
+	stroke.Color = Color3.fromRGB(120, 150, 230)
+	stroke.Parent = bg
 
 	local title = Instance.new("TextLabel")
 	title.Size = UDim2.new(1, 0, 0, 56)

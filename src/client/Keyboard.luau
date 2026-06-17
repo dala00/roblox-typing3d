@@ -106,26 +106,24 @@ local function buildLaptop(folder: Folder)
 	local deck = Instance.new("Part")
 	deck.Name = "LaptopDeck"
 	deck.Anchored = true
-	deck.Size = Vector3.new(kbdWidth + 8, deckThick, rowsN * cfg.Pitch + 10)
+	deck.Size = Vector3.new(kbdWidth + 8, deckThick, rowsN * cfg.Pitch + cfg.DeckDepthMargin)
 	deck.Position = Vector3.new(0, cfg.DeskY - deckThick / 2, centerZ)
 	deck.Color = Color3.fromRGB(26, 26, 34)
 	deck.Material = Enum.Material.Metal
 	deck.TopSurface = Enum.SurfaceType.Smooth
 	deck.Parent = folder
 
-	-- ヒンジ(デッキ奥端)。画面はここから上へ、やや後ろへ倒して立てる。
-	local backZ = centerZ - (rowsN * cfg.Pitch + 10) / 2
-	local hinge = CFrame.new(0, cfg.DeskY, backZ) * CFrame.Angles(math.rad(-12), 0, 0)
-
-	local screenH = 36
-	local screenW = screenH * 16 / 9
+	-- 画面の中心CFrame(GameConfigと共有=看板と位置が揃う)
+	local screenH = cfg.ScreenH
+	local screenW = cfg.screenWidth()
+	local screenCenter = cfg.screenCenterCFrame()
 
 	-- 画面の裏ガワ(暗い板)
 	local back = Instance.new("Part")
 	back.Name = "DisplayBack"
 	back.Anchored = true
 	back.Size = Vector3.new(screenW + 3, screenH + 3, 1.5)
-	back.CFrame = hinge * CFrame.new(0, screenH / 2 + 1, -0.9)
+	back.CFrame = screenCenter * CFrame.new(0, 0, -0.9)
 	back.Color = Color3.fromRGB(18, 18, 24)
 	back.Material = Enum.Material.Metal
 	back.Parent = folder
@@ -136,7 +134,7 @@ local function buildLaptop(folder: Folder)
 	screen.Anchored = true
 	screen.CanCollide = false
 	screen.Size = Vector3.new(screenW, screenH, 0.4)
-	screen.CFrame = hinge * CFrame.new(0, screenH / 2 + 1, 0)
+	screen.CFrame = screenCenter
 	screen.Color = Color3.fromRGB(140, 160, 235)
 	screen.Material = Enum.Material.Neon
 	screen.Parent = folder
