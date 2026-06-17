@@ -36,10 +36,10 @@ local GameConfig = {
 	-- ===== 制限時間 =====
 	-- 巨大キーボード上の移動時間を見込んで長めに。time = Base + 文字数 × PerChar。
 	-- PerCharはレベルで微減(下限あり)。
-	TimeBase = 3.0,
-	PerCharMax = 3.4,
-	PerCharMin = 2.4,
-	PerCharDecay = 0.07, -- レベルごとの減衰
+	TimeBase = 2.5,
+	PerCharMax = 2.8,
+	PerCharMin = 1.8,
+	PerCharDecay = 0.08, -- レベルごとの減衰
 	RetryDelay = 0.7, -- ゲームオーバー後リトライ受付までの猶予
 
 	-- ===== 色 =====
