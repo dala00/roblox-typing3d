@@ -102,6 +102,13 @@ local GameConfig = {
 	WordTimeBonus = 1.0, -- 単語クリアの時間ボーナス
 	RetryDelay = 0.7, -- ゲームオーバー後リトライ受付までの猶予
 
+	-- ===== 課金アイテム(薬: 買うと制限時間+) =====
+	-- Creator Hub で「開発者プロダクト(Developer Product)」を作り、そのIDをここに。
+	-- 0 のままだと販売無効(瓶は出るが購入ダイアログは開かない)。価格はRobux側で設定。
+	PotionProductId = 3605243594,
+	PotionTimeSeconds = 60, -- 1回購入で増える秒数
+	ShopIconId = "rbxassetid://93061313779692", -- ショップ/薬アイコン画像(空ならテキスト表示)
+
 	-- ===== 色 =====
 	-- キー上面ラベル(発光想定)。通常=青白、次に踏む=金。
 	LabelBase = Color3.fromRGB(150, 200, 255),

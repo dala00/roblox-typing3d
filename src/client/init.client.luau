@@ -11,6 +11,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
+local MarketplaceService = game:GetService("MarketplaceService")
 
 -- init.client.luau があるフォルダ自体がこの LocalScript(Client)。
 -- 兄弟の .luau は「この LocalScript の子」になるので script.<名前> で参照する。
@@ -19,6 +20,7 @@ local GameConfig = require(Shared.GameConfig)
 local Keyboard = require(script.Keyboard)
 local Hud = require(script.Hud)
 local Sounds = require(script.Sounds)
+local ShopGui = require(script.ShopGui)
 
 local StarterGui = game:GetService("StarterGui")
 
@@ -39,6 +41,8 @@ local hud = Hud.new(playerGui)
 
 -- ハイスコア送信用(サーバーが自己ベストを保存→看板更新)
 local submitScore = ReplicatedStorage:WaitForChild("SubmitScore") :: RemoteEvent
+-- 課金アイテム購入成立時にサーバーから時間加算が来る
+local addTimeEvent = ReplicatedStorage:WaitForChild("AddTime") :: RemoteEvent
 
 -- ===== ゲーム状態 =====
 local target = ""
@@ -138,8 +142,9 @@ local function keyTimeBonus(): number
 	)
 end
 
+-- 無料加算は上限(TimeCap)まで。ただし課金などで既に上限超のときは減らさない。
 local function addTime(amount: number)
-	timeLeft = math.min(GameConfig.TimeCap, timeLeft + amount)
+	timeLeft = math.max(timeLeft, math.min(GameConfig.TimeCap, timeLeft + amount))
 end
 
 -- ===== お題選択 =====
@@ -327,6 +332,37 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	end
 end)
 hud.retry.Activated:Connect(tryRestart)
+
+-- ===== 課金アイテム(薬: 制限時間+) =====
+local function promptPotion()
+	if GameConfig.PotionProductId == 0 then
+		return -- まだ商品ID未設定(販売無効)
+	end
+	if not playing or gameOver then
+		return
+	end
+	playing = false -- 購入ダイアログ中はタイマー停止(不利にならないように)
+	MarketplaceService:PromptProductPurchase(player, GameConfig.PotionProductId)
+end
+
+-- 課金ボタン(右端。押すと購入ダイアログ)
+ShopGui.new(playerGui, promptPotion, GameConfig.ShopIconId)
+
+-- ダイアログを閉じたら(買っても買わなくても)再開
+MarketplaceService.PromptProductPurchaseFinished:Connect(function()
+	if not gameOver then
+		playing = true
+	end
+end)
+
+-- 購入成立 → サーバーから時間加算
+addTimeEvent.OnClientEvent:Connect(function(seconds: number)
+	-- 課金分は上限(TimeCap)を超えて満額付与する
+	timeLeft += seconds
+	Sounds.play("ok")
+	hud:popup(string.format("POTION!  +%d:%02d", seconds // 60, seconds % 60), Color3.fromRGB(150, 255, 180), 48)
+	updateHud()
+end)
 
 -- ===== 制限時間カウントダウン =====
 RunService.Heartbeat:Connect(function(dt)

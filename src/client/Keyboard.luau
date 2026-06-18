@@ -391,6 +391,60 @@ local function buildRoom(folder: Folder)
 	floor.Parent = folder
 end
 
+-- 薬瓶の飾り(左端に置く雰囲気用)。購入は画面のショップパネルから行う。
+local function buildShop(folder: Folder)
+	local cfg = GameConfig
+	local baseX = -cfg.Pitch * 5 -- ≒ -37.5。最左キーより左の余白
+	local baseZ = -((#cfg.Rows - 1) * cfg.Pitch) / 2 -- キーボードの前後中央
+	local topY = cfg.DeskY
+
+	local function part(name: string, shape: Enum.PartType, size: Vector3, cf: CFrame, color: Color3, material: Enum.Material, transparency: number?)
+		local p = Instance.new("Part")
+		p.Name = name
+		p.Anchored = true
+		p.CanCollide = false
+		p.Shape = shape
+		p.Size = size
+		p.CFrame = cf
+		p.Color = color
+		p.Material = material
+		p.Transparency = transparency or 0
+		p.Parent = folder
+	end
+
+	-- 台座
+	part("ShopBase", Enum.PartType.Cylinder, Vector3.new(1.5, 9, 9),
+		CFrame.new(baseX, topY + 0.75, baseZ) * CFrame.Angles(0, 0, math.rad(90)),
+		Color3.fromRGB(28, 28, 38), Enum.Material.Metal)
+
+	-- 薬瓶(緑に発光・半透明)
+	local bottleH = 7
+	local bodyY = topY + 1.5 + bottleH / 2
+	local body = Instance.new("Part")
+	body.Name = "PotionBody"
+	body.Anchored = true
+	body.CanCollide = false
+	body.Shape = Enum.PartType.Cylinder
+	body.Size = Vector3.new(bottleH, 5, 5)
+	body.CFrame = CFrame.new(baseX, bodyY, baseZ) * CFrame.Angles(0, 0, math.rad(90))
+	body.Color = Color3.fromRGB(80, 255, 140)
+	body.Material = Enum.Material.Neon
+	body.Transparency = 0.25
+	body.Parent = folder
+	part("PotionNeck", Enum.PartType.Cylinder, Vector3.new(2.5, 2, 2),
+		CFrame.new(baseX, bodyY + bottleH / 2 + 1.25, baseZ) * CFrame.Angles(0, 0, math.rad(90)),
+		Color3.fromRGB(80, 255, 140), Enum.Material.Neon, 0.3)
+	part("PotionCork", Enum.PartType.Block, Vector3.new(1.8, 1.6, 1.8),
+		CFrame.new(baseX, bodyY + bottleH / 2 + 3, baseZ),
+		Color3.fromRGB(120, 80, 40), Enum.Material.SmoothPlastic)
+
+	local light = Instance.new("PointLight")
+	light.Color = Color3.fromRGB(120, 255, 160)
+	light.Brightness = 2
+	light.Range = 22
+	light.Parent = body
+end
+
 function Keyboard.build(): KeyInfo
 	local cfg = GameConfig
 
@@ -434,6 +488,7 @@ function Keyboard.build(): KeyInfo
 	end
 
 	buildWalls(folder, info.bounds)
+	buildShop(folder)
 
 	info.homePos = info.pos[cfg.HomeKey] or Vector3.zero
 	return info

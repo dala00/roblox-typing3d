@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 
 local AssetProps = require(script.AssetProps)
 local Leaderboard = require(script.Leaderboard)
+local Purchases = require(script.Purchases)
 
 Players.CharacterAutoLoads = true
 
@@ -28,5 +29,8 @@ AssetProps.spawnAll()
 
 -- 世界内ハイスコア看板＋ランキング(OrderedDataStore)
 Leaderboard.start()
+
+-- 課金アイテム(薬: 制限時間+)の購入処理
+Purchases.start()
 
 print("[typing3d] サーバー起動: タイピング(クライアント駆動)")

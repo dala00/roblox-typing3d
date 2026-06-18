@@ -59,6 +59,7 @@ Godot 版 3D タイピング（`godot/typing-3d`）からの移植 MVP を実装
 
 - 操作は **Roblox 標準**（WASD 移動＋SPACE ジャンプ）。タンク操作ではなく、キャラはプレイヤーのアバターそのまま。**モバイルは標準のタッチ操作（移動スティック＋ジャンプボタン）が自動で出る**ので追加実装不要。リトライは画面の「リトライ」ボタン（タップ/クリック）＋ SPACE の両対応。操作ヒントは端末で文言を切替。
 - ワールド生成・ゲームロジック・判定は**すべてクライアント側で完結**（各プレイヤー自分のワールド）。サーバーは起動ログ＋アセット小物配置＋ハイスコア看板。
+- 課金アイテムは `src/server/Purchases.luau`（開発者プロダクト）。キーボード左の薬瓶をクリック/タップ→`MarketplaceService:PromptProductPurchase`→サーバー`ProcessReceipt`で成立→`RemoteEvent` "AddTime" でそのクライアントに `PotionTimeSeconds`(60)秒を加算。課金分は `TimeCap` を超えて満額付与。瓶生成は `Keyboard.luau` の `buildShop`、購入導線は `init.client.luau`。商品IDは `GameConfig.PotionProductId`（0=販売無効）。ダイアログ中はタイマー停止。
 - ハイスコア・ランキングは `src/server/Leaderboard.luau`。`OrderedDataStore` に自己ベストを保存し、ディスプレイ脇の世界内看板に TOP10 を表示。クライアントがゲームオーバー時に `RemoteEvent` "SubmitScore" でスコア送信→サーバーが最大値を保存。**スコア計算がクライアント側なので厳密検証は不可（改ざんは割り切り）**。Studioでは「Enable Studio Access to API Services」ON が必要。
 - ファイル構成:
   - `src/shared/GameConfig.luau` 寸法・スコア・色・単語リストなど定数。
